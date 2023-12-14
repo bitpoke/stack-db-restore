@@ -1,0 +1,2 @@
+initdb.d/**
+!initdb.d/.gitkeep

@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  db-restore:
+    image: bitnami/percona-xtrabackup:2.4.26
+    entrypoint: ["/bin/bash", "-c"]
+    command: /restore/restore.sh
+    user: root
+    volumes:
+      - ./scripts:/restore:ro
+      - ./initdb.d:/docker-entrypoint-initdb.d:ro
+      - mysql:/var/lib/mysql
+  db:
+    # use the same image as from live
+    # percona:5.7.31-centos
+    image: percona@sha256:68dad5e2efeb6893e2d7d116a1eae144f2c641c17d00e7869397395590c91651
+    entrypoint: /restore/entrypoint.sh
+    command: mysqld
+    ports:
+      - "33060:3306"
+    depends_on:
+      - db-restore
+    volumes:
+      - ./scripts:/restore:ro
+      - ./initdb.d:/docker-entrypoint-initdb.d:ro
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: not-so-secure
+volumes:
+  mysql: {}
